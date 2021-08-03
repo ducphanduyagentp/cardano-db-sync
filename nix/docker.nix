@@ -61,6 +61,7 @@
 , utillinux
 , writeScript
 , writeScriptBin
+, runCommand
 , runtimeShell
 , lib
 , libidn
@@ -72,6 +73,11 @@
 
 let
 
+  env-shim = runCommand "env-shim" {} ''
+    mkdir -p $out/usr/bin
+    ln -s ${coreutils}/bin/env $out/usr/bin/env
+  '';
+
   # Layer of tools which aren't going to change much between versions.
   baseImage = dockerTools.buildImage {
     name = "base-env";
@@ -82,6 +88,7 @@ let
       bashInteractive   # Provide the BASH shell
       cacert            # X.509 certificates of public CA's
       coreutils         # Basic utilities expected in GNU OS's
+      env-shim          # Make /usr/bin/env available
       curl              # CLI tool for transferring files via URLs
       glibcLocales      # Locale information for the GNU C Library
       iana-etc          # IANA protocol and port number assignments
